@@ -18,7 +18,7 @@ class CreateOrdersTable extends Migration
             $table->increments('id');
             /*****************外键*****************/
             $table->string('user_id',255);
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('wx_users');
             /**************************************/
             /*****************外键*****************/
             $table->string('seller_id',255);

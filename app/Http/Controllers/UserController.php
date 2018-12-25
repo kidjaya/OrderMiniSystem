@@ -79,7 +79,7 @@ class UserController extends Controller
              */
             public function getUserAddress(Request $request)
             {
-
+                $session_key =$request->header('sessionKey');
                 $user =User::find($request->user_id);
                 if($user==null){
                     return json_encode( ['msg'=>'USER_DOES_NOTE_EXIST','code'=>'20001']);

@@ -22,7 +22,7 @@ class CreateSellersTable extends Migration
             $table->string('seller_time',60);
             $table->integer('seller_grade')->default(5);
             $table->string('seller_address',255);
-            $table->integer('seller_month_sales',50)->default(3);
+            $table->integer('seller_month_sales')->default(5);
             $table->char('seller_freight',1)->default(0);
             $table->char('seller_status',1)->default(1);
             $table->string('update_by',50)->nullable();

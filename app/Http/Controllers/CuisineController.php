@@ -54,7 +54,8 @@ class CuisineController extends Controller
             return json_encode( ['msg'=>'CUISINE_DOES_NOTE_EXIST','code'=>'20001']);
         }
         elseif($cuisine->has_sku){
-           return json_encode(['detail'=>$cuisine,'sku'=>$cuisine->allScale]);
+            $cuisine->allScale;
+            return json_encode(['detail'=>$cuisine]);
         }
         else{
             return  $cuisine->toJson();

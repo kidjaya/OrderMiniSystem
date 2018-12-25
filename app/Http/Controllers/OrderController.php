@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Order;
 use App\OrderDetail;
-use App\User;
+use App\WxUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
 class OrderController extends Controller
 {
@@ -38,7 +39,10 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         //插入新的订单
-        if($request->user_id==null){return json_encode(['msg'=>'NEED_USER_ID','code'=>'40001']);}
+        $session_key =Crypt::decryptString($request->header('sessionKey'));
+        if(WxUser::where('session_key',$session_key)->first()==null){return json_encode(['msg'=>'SESSION_OUTDATED']);}
+         $user_id =WxUser::where('session_key',$session_key)->first()->id;
+        if($user_id==null){return json_encode(['msg'=>'NEED_USER_ID','code'=>'40001']);}
         elseif($request->seller_id==null){return json_encode(['msg'=>'NEED_SELLER_ID','code'=>'40001']);}
         elseif($request->address==null){return json_encode(['msg'=>'NEED_ADDRESS','code'=>'40001']);}
         elseif($request->name==null){return json_encode(['msg'=>'NEED_NAME','code'=>'40001']);}
@@ -47,7 +51,7 @@ class OrderController extends Controller
         elseif($request->phone==null){return json_encode(['msg'=>'NEED_PHONE','code'=>'40001']);}
         elseif($request->detail==null){return json_encode(['msg'=>'NEED_DETAIL','code'=>'40001']);}
         $order = new Order();
-            $order->user_id = $request->user_id;
+            $order->user_id = $user_id;//WxUser::where('open_id',$request->open_id)->get()->id;
             $order->seller_id = $request->seller_id;
             $order->address = $request->address;
             $order->name = $request->name;
@@ -56,7 +60,6 @@ class OrderController extends Controller
             $order->phone = $request->phone;
 //        dd($order=$request->detail);
             $store=$order->save();
-//        dd($order->id);
         foreach($request->detail as $value){
             $orderDetail = new OrderDetail();
             $orderDetail->order_id = $order->id;
@@ -88,7 +91,10 @@ class OrderController extends Controller
     public function show(Request $request)
     {
         //查看某个用户的订单
-        $orderList =  User::find($request->id);
+        $session_key =Crypt::decryptString($request->header('sessionKey'));
+        if(WxUser::where('session_key',$session_key)->first()==null){return json_encode(['msg'=>'SESSION_OUTDATED']);}
+        $user_id =WxUser::where('session_key',$session_key)->first()->id;
+        $orderList = WxUser::find($user_id);
         return $orderList->getOrder->toJson();
     }
 
@@ -113,6 +119,9 @@ class OrderController extends Controller
     public function update(Request $request)
     {
         //
+        if($request->order_id==null){
+            return ['msg'=>'NEED_ORDER_ID','code'=>400001];
+        }
         if(Order::where('id',$request->order_id)->get()){
             $order_id=$request->order_id;
             $status=Order::where('id',$order_id)->update(['order_state'=>1]);
@@ -135,6 +144,9 @@ class OrderController extends Controller
     public function destroy(Request $request)
     {
         //删除订单
+        if($request->order_id==null){
+            return ['msg'=>'NEED_ORDER_ID','code'=>400001];
+        }
         $delete=Order::destroy($request->order_id);
         $deleteDetail=OrderDetail::destroy('order_id',$request->order_id);
         if($delete&&$deleteDetail){

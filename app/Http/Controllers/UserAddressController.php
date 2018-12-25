@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\UserAddress;
+use App\User;
+use App\WxUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
 class UserAddressController extends Controller
 {
@@ -36,17 +39,24 @@ class UserAddressController extends Controller
     public function store(Request $request)
     {
         //
-        if($request->user_id==null){return json_encode(['msg'=>'NEED_USER_ID','code'=>'40001']);}
-        elseif($request->phone==null){return json_encode(['msg'=>'NEED_PHONE','code'=>'40001']);}
+        $session_key =Crypt::decryptString($request->header('sessionKey'));
+        $user_id =WxUser::where('session_key',$session_key)->first()->id;
+        if($user_id==null){return json_encode(['msg'=>'NEED_USER_ID','code'=>'40001']);}
+        if($request->phone==null){return json_encode(['msg'=>'NEED_PHONE','code'=>'40001']);}
         elseif($request->name==null){return json_encode(['msg'=>'NEED_NAME','code'=>'40001']);}
         elseif($request->address==null){return json_encode(['msg'=>'NEED_ADDRESS','code'=>'40001']);}
         elseif($request->address_dec==null){return json_encode(['msg'=>'NEED_ADDRESS_DEC','code'=>'40001']);}
         $userAddress=new UserAddress();
-        $userAddress->user_id=$request->user_id;
+        $userAddress->user_id=$user_id;//WxUser::where('open_id',$request->open_id)->get()->id;
         $userAddress->phone=$request->phone;
         $userAddress->name=$request->name;
         $userAddress->address=$request->address;
         $userAddress->address_dec=$request->address_dec;
+        //更新默认地址标记
+        if($request->has('address_flag')){
+            $userAddress->address_flag=$request->address_flag;
+            UserAddress::where(['user_id'=>$user_id,'address_flag'=>1])->update(['address_flag'=>0]);
+        }
         $store=$userAddress->save();
         if($store){
             return json_encode(['msg'=>'SUCCESS_STORE_ADDRESS','code'=>200,'new_address_id'=>$userAddress->id]);

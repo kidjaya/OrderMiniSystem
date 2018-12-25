@@ -24,12 +24,12 @@ class CreateSellerCuisinesTable extends Migration
             $table->string('cuisine_pic',100);
             $table->string('cuisine_dec',60)->nullable();
             $table->string('cuisine_stock',10)->default(100);
-            $table->integer('cuisine_ori_price',30);
-            $table->integer('cuisine_price',30);
+            $table->integer('cuisine_ori_price');
+            $table->integer('cuisine_price');
             $table->char('has_sku',1)->default(0);
             $table->char('cuisine_state',1)->default(1);
             $table->string('cuisine_body',255);
-            $table->integer('cuisine_month_sales',50)->default(5);
+            $table->integer('cuisine_month_sales')->default(5);
             $table->char('del_flag',1)->default(0);
             $table->string('update_by',50)->nullable();
             $table->string('remarks',50)->nullable();

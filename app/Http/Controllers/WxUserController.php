@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\OrderDetail;
-use App\Order;
+use App\WxUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
-class OrderDetailController extends Controller
+class WxUserController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -42,26 +42,42 @@ class OrderDetailController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\WxUser  $wxUser
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show($id)
     {
-        //查看订单细节
-        if($request->order_id==null){
-            return ['msg'=>'NEED_ORDER_ID','code'=>400001];
+        //
+        $user =User::find($id);
+        if(!$user){
+            return json_encode( ['msg'=>'USER_DOES_NOTE_EXIST','code'=>'20001']);
+        }else{
+            return  $user->toJson();
         }
-        $orderDetail = Order::find($request->order_id);
-        return $orderDetail->getDetail->toJson();
+    }
+    /**
+     * Display the specified resource.
+     * @param \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getUserAddress(Request $request)
+    {
+        $session_key =Crypt::decryptString($request->header('sessionKey'));
+        $user =WxUser::where('session_key',$session_key)->first();
+        if($user==null){
+            return json_encode( ['msg'=>'USER_DOES_NOTE_EXIST','code'=>'20001']);
+        }else{
+            return $user->getAddress->tojson();
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\OrderDetail  $orderDetail
+     * @param  \App\WxUser  $wxUser
      * @return \Illuminate\Http\Response
      */
-    public function edit(OrderDetail $orderDetail)
+    public function edit(WxUser $wxUser)
     {
         //
     }
@@ -70,10 +86,10 @@ class OrderDetailController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\OrderDetail  $orderDetail
+     * @param  \App\WxUser  $wxUser
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, OrderDetail $orderDetail)
+    public function update(Request $request, WxUser $wxUser)
     {
         //
     }
@@ -81,10 +97,10 @@ class OrderDetailController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\OrderDetail  $orderDetail
+     * @param  \App\WxUser  $wxUser
      * @return \Illuminate\Http\Response
      */
-    public function destroy(OrderDetail $orderDetail)
+    public function destroy(WxUser $wxUser)
     {
         //
     }

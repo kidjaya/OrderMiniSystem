@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Seller;
+use App\SellerCuisine;
 use Illuminate\Http\Request;
 
 class SellerController extends Controller
@@ -57,24 +58,47 @@ class SellerController extends Controller
 
     /**
      * Display the specified resource.
-     *
-//     * @param  \App\Seller  $seller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+        if($id==null){
+            return ['msg'=>'NEED_ID_BY_URL','code'=>'400001'];
+        }
         $cuisine=Seller::find($id);
         return $cuisine->getCuisine->toJson();
-
-//
-//        $seller = Seller::find($id);
-//        if(!$seller){
-//            return json_encode( ['msg'=>'SELLER_DOES_NOTE_EXIST','code'=>'20001']);
-//        }else{
-//            return  $seller->toJson();
-//        }
     }
+            /**
+             * Display the specified resource.
+             * @param  int  $id
+             * @return \Illuminate\Http\Response
+             */
+            public function sales($id)
+            {
+                if ($id == null) {
+                    return ['msg' => 'NEED_ID_BY_URL', 'code' => '400001'];
+                }
+                $cuisine = SellerCuisine::where('seller_id',$id)
+                        ->orderBy('cuisine_month_sales','desc')
+                        ->paginate(10);
+                return json_encode($cuisine);
+            }
+            /**
+             * Display the specified resource.
+             * @param  int  $id
+             * @return \Illuminate\Http\Response
+             */
+            public function price($id)
+            {
+                if ($id == null) {
+                    return ['msg' => 'NEED_ID_BY_URL', 'code' => '400001'];
+                }
+                $cuisine = SellerCuisine::where('seller_id',$id)
+                    ->orderBy('cuisine_price','desc')
+                    ->paginate(10);
+                return json_encode($cuisine);
+            }
 
     /**
      * Show the form for editing the specified resource.
