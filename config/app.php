@@ -173,10 +173,11 @@ return [
 
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\composer require barryvdh/laravel-ide-helper::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+        Iwanli\Wxxcx\WxxcxServiceProvider::class,
+        Ixudra\Curl\CurlServiceProvider::class,
 
     ],
 

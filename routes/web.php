@@ -17,7 +17,7 @@ Route::resource('users','UserController');
 /*********************************用户地址&用户信息***************************************************/
 
 Route::get('/users','UserController@index'); //获取所有用户信息->判断管理员权限 <= 1
-    Route::post('/users/grant');//微信小程序登录获取输入插入库  并 返回user_id
+    Route::post('/users/grant','WxxcxController@getWxUserInfo');//微信小程序登录获取输入插入库  并 返回user_id
 
 //Route::group(['middleware'=>'haveUserId'],function(){
     Route::post('/users/addresses','UserController@getUserAddress'); //-获取用户地址->判断用户是否有user_id

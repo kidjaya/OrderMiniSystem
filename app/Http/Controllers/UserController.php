@@ -37,6 +37,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+
         if($request->name==null){return json_encode(['msg'=>'NEED_NAME','code'=>'40001']);}
         elseif($request->openid==null){return json_encode(['msg'=>'NEED_OPENID','code'=>'40001']);}
         elseif($request->phone==null){return json_encode(['msg'=>'NEED_PHONE','code'=>'40001']);}
