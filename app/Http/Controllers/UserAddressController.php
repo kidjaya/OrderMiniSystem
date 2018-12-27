@@ -38,7 +38,7 @@ class UserAddressController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //获取id
         $session_key =Crypt::decryptString($request->header('sessionKey'));
         $user_id =WxUser::where('session_key',$session_key)->first()->id;
         if($user_id==null){return json_encode(['msg'=>'NEED_USER_ID','code'=>'40001']);}
@@ -96,16 +96,29 @@ class UserAddressController extends Controller
      */
     public function update(Request $request, UserAddress $userAddress)
     {
+        //获取id
+        $session_key =Crypt::decryptString($request->header('sessionKey'));
+        $user_id =WxUser::where('session_key',$session_key)->first()->id;
+//        $this->authorize('update',$userAddress);
         if($request->address_id==null){return json_encode(['msg'=>'NEED_ADDRESS_ID','code'=>'40001']);}
         elseif($request->phone==null){return json_encode(['msg'=>'NEED_PHONE','code'=>'40001']);}
         elseif($request->name==null){return json_encode(['msg'=>'NEED_NAME','code'=>'40001']);}
         elseif($request->address==null){return json_encode(['msg'=>'NEED_ADDRESS','code'=>'40001']);}
         elseif($request->address_dec==null){return json_encode(['msg'=>'NEED_ADDRESS_DEC','code'=>'40001']);}
         $updateAddress=UserAddress::findOrFail($request->address_id);
+
+        //判断是否是当前用户
+        if($updateAddress->user_id!=$user_id){
+            return ['msg'=>'you are 不是current用户'];
+        }
             $updateAddress->phone=$request->phone;
             $updateAddress->name=$request->name;
             $updateAddress->address=$request->address;
             $updateAddress->address_dec=$request->address_dec;
+            if($request->has('address_flag')){
+                $userAddress->address_flag=$request->address_flag;
+                UserAddress::where(['user_id'=>$user_id,'address_flag'=>1])->update(['address_flag'=>0]);
+            }
             $update=$updateAddress->update();
             if($update){
                 return json_encode(['msg'=>'SUCCESS_UPDATE_ADDRESS','code'=>200]);
@@ -122,8 +135,16 @@ class UserAddressController extends Controller
      */
     public function destroy(Request $request)
     {
+        $session_key =Crypt::decryptString($request->header('sessionKey'));
+        $user_id =WxUser::where('session_key',$session_key)->first()->id;
         UserAddress::findOrFail($request->address_id);
         $destroyAddress = UserAddress::destroy($request->address_id);
+
+        //判断是否是当前用户
+        if($destroyAddress->user_id!=$user_id){
+            return ['msg'=>'you are 不是current用户'];
+        }
+
         if($destroyAddress){
             return json_encode(['msg'=>'SUCCESS_DELETE_ADDRESS','code'=>200]);
         }

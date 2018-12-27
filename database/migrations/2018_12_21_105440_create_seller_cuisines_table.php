@@ -16,7 +16,7 @@ class CreateSellerCuisinesTable extends Migration
         Schema::create('seller_cuisines', function (Blueprint $table) {
             $table->increments('id');
             /*****************外键*****************/
-            $table->string('seller_id',255);
+            $table->integer('seller_id',255);
             $table->foreign('seller_id')->references('id')->on('sellers');
             /**************************************/
             $table->string('cuisine_name',50);

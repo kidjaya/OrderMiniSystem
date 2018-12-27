@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\SellerCuisine;
 use App\SellerCuisineScale;
 use Illuminate\Http\Request;
+use Cache;
 
 class CuisineController extends Controller
 {
@@ -49,16 +50,31 @@ class CuisineController extends Controller
     public function show($id)
     {
         //查看商品细节包括规格
-        $cuisine = SellerCuisine::find($id);
-        if(!$cuisine){
-            return json_encode( ['msg'=>'CUISINE_DOES_NOTE_EXIST','code'=>'20001']);
+        if ($id == null) {
+            return ['msg' => 'NEED_ID_BY_URL', 'code' => '400001'];
         }
-        elseif($cuisine->has_sku){
-            $cuisine->allScale;
-            return json_encode(['detail'=>$cuisine]);
+        $key="cuisineDetail".$id;
+        $cuisines_detail = Cache::get($key);
+
+        if(!$cuisines_detail){
+                 //是否存在
+                $cuisine = SellerCuisine::find($id);
+                if(!$cuisine){
+                    return json_encode( ['msg'=>'CUISINE_DOES_NOTE_EXIST','code'=>'20001']);
+                }
+                elseif($cuisine->has_sku){
+                    $cuisine->allScale;
+                    Cache::set($key,$cuisine,10);
+                    return json_encode(['detail'=>$cuisine]);
+                }
+                else{
+                    $cuisine->allScale;
+                    Cache::set($key,$cuisine,10);
+                    return  json_encode(['detail'=>$cuisine]);
+                }
         }
         else{
-            return  $cuisine->toJson();
+            return  json_encode(['detail'=>$cuisines_detail]);
         }
     }
 

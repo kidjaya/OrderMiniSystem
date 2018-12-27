@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Seller;
 use App\SellerCuisine;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class SellerController extends Controller
 {
@@ -16,23 +17,58 @@ class SellerController extends Controller
     public function index()
     {
         //获取全部商家
-        return Seller::paginate(10)->toJson();
+        $page = request()->page ?? 1;
+        $key = "sellers.paginate.".$page;
+        $sellers = Cache::get($key);
+        if(!$sellers){
+            $sellers=Seller::paginate(10);
+            Cache::set($key,$sellers,10);
+            return json_encode($sellers);
+        }
+        return json_encode($sellers);
     }
             // 筛选路由
             public function orderByMonth()
             {
-                //
-                return Seller::orderBy('seller_month_sales','desc')->paginate(10)->toJson();
+                //月销量排序
+                $page = request()->page ?? 1;
+                $key = "sellers.orderByMonth.paginate.".$page;
+                $sellers = Cache::get($key);
+                if(!$sellers){
+                    $sellers=Seller::orderBy('seller_month_sales','desc')->paginate(10);
+                    Cache::set($key,$sellers,10);
+                    return json_encode($sellers);
+                }
+                return json_encode($sellers);
+//                return Seller::orderBy('seller_month_sales','desc')->paginate(10)->toJson();
             }
             public function orderByGrade()
             {
-                //
-                return Seller::orderBy('seller_grade','desc')->paginate(10)->toJson();
+                //评分排序
+                $page = request()->page ?? 1;
+                $key = "sellers.orderByGrade.paginate.".$page;
+                $sellers = Cache::get($key);
+                if(!$sellers){
+                    $sellers=Seller::orderBy('seller_grade','desc')->paginate(10);
+                    Cache::set($key,$sellers,10);
+                    return json_encode($sellers);
+                }
+                return json_encode($sellers);
+//                return Seller::orderBy('seller_grade','desc')->paginate(10)->toJson();
             }
             public function orderByFreight()
             {
-                //
-                return Seller::where('seller_freight',0)->orderBy('seller_month_sales','desc')->paginate(10)->toJson();
+                //运费排序
+                $page = request()->page ?? 1;
+                $key = "sellers.orderByFreight.paginate.".$page;
+                $sellers = Cache::get($key);
+                if(!$sellers){
+                    $sellers=Seller::where('seller_freight',0)->orderBy('seller_month_sales','desc')->paginate(10);
+                    Cache::set($key,$sellers,10);
+                    return json_encode($sellers);
+                }
+                return json_encode($sellers);
+//              return Seller::where('seller_freight',0)->orderBy('seller_month_sales','desc')->paginate(10)->toJson();
             }
 
     /**
@@ -66,8 +102,22 @@ class SellerController extends Controller
         if($id==null){
             return ['msg'=>'NEED_ID_BY_URL','code'=>'400001'];
         }
-        $cuisine=Seller::find($id);
-        return $cuisine->getCuisine->toJson();
+        $key_detail = "sellersCuisines".$id;
+        $key_type = "sellersCuisinesType".$id;
+        $cuisines = Cache::get($key_detail);
+        $cuisines_types = Cache::get($key_type);
+        if(!$cuisines&&!$cuisines_types){
+            $seller=Seller::find($id);
+            $cuisine=$seller->getCuisine;
+            $type=$seller->getType;
+            Cache::set($key_detail,$cuisine,10);
+            Cache::set($cuisines_types,$type,10);
+            return json_encode(['cuisine'=>$cuisine,'type'=>$type]);
+        }
+//        $seller=Seller::find($id);
+//        $cuisine=$seller->getCuisine;
+//        $type=$seller->getType;
+        return json_encode(['cuisine'=>$cuisines,'type'=>$cuisines_types]);
     }
             /**
              * Display the specified resource.
@@ -79,10 +129,20 @@ class SellerController extends Controller
                 if ($id == null) {
                     return ['msg' => 'NEED_ID_BY_URL', 'code' => '400001'];
                 }
-                $cuisine = SellerCuisine::where('seller_id',$id)
+                $page = request()->page ?? 1;
+                $key="sellerCuisineBySales".$id.$page;
+                $cuisines = Cache::get($key);
+                if(!$cuisines){
+                    $cuisines = SellerCuisine::where('seller_id',$id)
                         ->orderBy('cuisine_month_sales','desc')
                         ->paginate(10);
-                return json_encode($cuisine);
+                    Cache::set($key,$cuisines,10);
+                    return json_encode($cuisines);
+                }
+//                $cuisine = SellerCuisine::where('seller_id',$id)
+//                        ->orderBy('cuisine_month_sales','desc')
+//                        ->paginate(10);
+                return json_encode($cuisines);
             }
             /**
              * Display the specified resource.
@@ -94,10 +154,20 @@ class SellerController extends Controller
                 if ($id == null) {
                     return ['msg' => 'NEED_ID_BY_URL', 'code' => '400001'];
                 }
-                $cuisine = SellerCuisine::where('seller_id',$id)
+                $page = request()->page ?? 1;
+                $key="sellerCuisineByPrice".$id.$page;
+                $cuisines = Cache::get($key);
+                if(!$cuisines){
+                    $cuisines = SellerCuisine::where('seller_id',$id)
                     ->orderBy('cuisine_price','desc')
                     ->paginate(10);
-                return json_encode($cuisine);
+                    Cache::set($key,$cuisines,10);
+                    return json_encode($cuisines);
+                }
+//                $cuisine = SellerCuisine::where('seller_id',$id)
+//                    ->orderBy('cuisine_price','desc')
+//                    ->paginate(10);
+                return json_encode($cuisines);
             }
 
     /**

@@ -18,6 +18,27 @@ class Seller extends Model
         '*'
     ];
     //
+    /**
+     * 获取用户的名字
+     *
+     * @param  int  $value
+     * @return string
+     */
+    public function getSellerTypeAttribute($value)
+    {
+        switch($value){
+            case 0:return ucfirst("全部");
+            case 1:return ucfirst("中餐");
+            case 2:return ucfirst("西餐");
+            case 3:return ucfirst("饮料");
+            case 4:return ucfirst("水果");
+            default: return ucfirst("其他");
+        }
+    }
+
+    public function getType(){
+        return $this->hasMany(SellerCuisineType::class,'seller_id','id');
+    }
     public function getCuisine(){
         return $this->hasMany(SellerCuisine::class,'seller_id','id');
     }

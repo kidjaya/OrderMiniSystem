@@ -20,6 +20,8 @@ class CreateSellersTable extends Migration
             $table->string('seller_des',100)->nullable();
             $table->string('seller_logo',100);
             $table->string('seller_time',60);
+            $table->string('seller_lowest_price');
+            $table->string('deliver_time');
             $table->integer('seller_grade')->default(5);
             $table->string('seller_address',255);
             $table->integer('seller_month_sales')->default(5);

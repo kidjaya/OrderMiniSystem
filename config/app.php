@@ -178,6 +178,7 @@ return [
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
         Iwanli\Wxxcx\WxxcxServiceProvider::class,
         Ixudra\Curl\CurlServiceProvider::class,
+        Barryvdh\Debugbar\ServiceProvider::class,
 
     ],
 

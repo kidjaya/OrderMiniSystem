@@ -128,6 +128,8 @@ class OrderController extends Controller
             if($status){
                 //TODO通知卖家
                 //TODO增加积分
+                //商品数量-1
+                //返回信息给用户
                 return json_encode(['msg'=>'SUCCESS_PAY','code'=>'200']);
             }
         }else{
@@ -147,6 +149,16 @@ class OrderController extends Controller
         if($request->order_id==null){
             return ['msg'=>'NEED_ORDER_ID','code'=>400001];
         }
+        //获取id
+        $session_key =Crypt::decryptString($request->header('sessionKey'));
+        $user_id =WxUser::where('session_key',$session_key)->first()->id;
+        $order_uid=Order::findOrFail($request->order_id)->user_id;
+
+        //判断是否是当前用户
+        if($user_id!=$order_uid){
+            return ['msg'=>'donT 拥有 permission'];
+        }
+        //删除订单逻辑
         $delete=Order::destroy($request->order_id);
         $deleteDetail=OrderDetail::destroy('order_id',$request->order_id);
         if($delete&&$deleteDetail){
