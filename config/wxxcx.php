@@ -4,11 +4,11 @@ return [
 	/**
 	 * 小程序APPID
 	 */
-    'appid' => 'wxaedf5bae8514ef7f',
+    'appid' => 'e8514ef7fwxaedf5ba',
     /**
      * 小程序Secret
      */
-    'secret' => '9d6bf39e023323aa00940d7160f79588',
+    'secret' => 'aa00940d7160f795889d6bf39e023323',
     /**
      * 小程序登录凭证 code 获取 session_key 和 openid 地址，不需要改动
      */
